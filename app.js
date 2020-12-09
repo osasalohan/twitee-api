@@ -18,20 +18,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(methodOverride("_method"));
 
 //available routes
-app.use("/api", authRoutes);
-app.use("/api/:id", loginRequired, ensureCorrectUser, postRoutes);
-app.use(
-  "/api/:id/posts/:post_id",
-  loginRequired,
-  ensureCorrectUser,
-  commentRoutes
-);
-app.use(
-  "/api/:id/posts/:post_id",
-  loginRequired,
-  ensureCorrectUser,
-  likeRoutes
-);
+app.use("/", authRoutes);
+app.use("/:id", loginRequired, ensureCorrectUser, postRoutes);
+app.use("/:id/posts/:post_id", loginRequired, ensureCorrectUser, commentRoutes);
+app.use("/:id/posts/:post_id", loginRequired, ensureCorrectUser, likeRoutes);
 
 //handle errors with useful messages
 app.use((req, res, next) => {
