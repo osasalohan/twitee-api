@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router({ mergeParams: true });
-const { getLikes, addLike, deleteLike } = require("../handlers/Like");
+const { getLikes, addLike, deleteLike } = require("../handlers/like");
 
 //get likes route
 router.get("/likes", getLikes);
