@@ -26,6 +26,10 @@ const postSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  createdAt: {
+    type: Date,
+    default: new Date(),
+  },
 });
 
 //removes post from user instance before deleting

@@ -3,7 +3,12 @@ const db = require("../models");
 //gets and returns all posts in the database
 exports.getPosts = async function (req, res, next) {
   try {
-    let posts = await db.Post.find({});
+    let posts = await db.Post.find({})
+      .populate("user")
+      .populate({
+        path: "comments",
+        populate: { path: "user", model: "User" },
+      });
     return res.status(200).json(posts);
   } catch (err) {
     return next(err);
@@ -20,7 +25,12 @@ exports.addPost = async function (req, res, next) {
     let user = await db.User.findById(req.params.id);
     user.posts.push(post.id);
     await user.save();
-    let foundPost = await db.Post.findById(post.id);
+    let foundPost = await db.Post.findById(post.id)
+      .populate("user")
+      .populate({
+        path: "comments",
+        populate: { path: "user", model: "User" },
+      });
     return res.status(200).json(foundPost);
   } catch (err) {
     return next(err);
