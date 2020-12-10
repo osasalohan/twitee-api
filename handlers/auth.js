@@ -17,7 +17,7 @@ exports.signup = async function (req, res, next) {
     username = username[0].toUpperCase() + username.slice(1);
     let user = await db.User.create({ ...req.body, name: username });
 
-    let { id, name, email } = user;
+    let { id, name, email, posts } = user;
 
     let mailOptions = {
       from: process.env.EMAIL,
@@ -38,12 +38,14 @@ exports.signup = async function (req, res, next) {
       {
         id,
         name,
+        posts,
       },
       process.env.SECRET_KEY
     );
     return res.status(200).json({
       id,
       name,
+      posts,
       token,
     });
   } catch (err) {
@@ -63,19 +65,21 @@ exports.signin = async function (req, res, next) {
     let user = await db.User.findOne({
       email: req.body.email,
     });
-    let { id, name } = user;
+    let { id, name, posts } = user;
     let isMatch = await user.comparePassword(req.body.password);
     if (isMatch) {
       let token = jwt.sign(
         {
           id,
           name,
+          posts,
         },
         process.env.SECRET_KEY
       );
       return res.status(200).json({
         id,
         name,
+        posts,
         token,
       });
     } else {
