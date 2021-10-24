@@ -27,7 +27,7 @@ app.use("/:id/posts/:post_id", loginRequired, ensureCorrectUser, likeRoutes);
 
 //handle errors with useful messages
 app.use((req, res, next) => {
-  let err = new Error("Not Found");
+  let err = new Error("Route not found");
   err.status = 404;
   next(err);
 });

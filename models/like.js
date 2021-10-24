@@ -23,7 +23,6 @@ likeSchema.pre("remove", async function (next) {
     post.likeCount--;
     await user.save();
     await post.save();
-    console.log("you are definitely hitting the pre remove hook");
     next();
   } catch (err) {
     return next(err);

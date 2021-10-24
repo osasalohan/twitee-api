@@ -1,20 +1,28 @@
 const db = require("../models");
+const Joi = require("joi");
+
+const addCommentSchema = Joi.object({
+  text: Joi.string().required(),
+});
 
 //gets all comments for a post
 exports.getComments = async (req, res, next) => {
   try {
-    let post = await (await db.Post.findById(req.params.post_id)).populate(
-      "comments"
+    let comments = await db.Comment.find({ post: req.params.post_id }).populate(
+      "user",
+      "name email"
     );
-    return res.status(200).json(post.comments);
+    res.status(200).json(comments);
   } catch (err) {
-    return next(err);
+    next(err);
   }
 };
 
 //creates comment and adds it to a post and user instance
 exports.addComment = async (req, res, next) => {
   try {
+    await addCommentSchema.validateAsync(req.body);
+
     let comment = await db.Comment.create({
       text: req.body.text,
       user: req.params.id,
@@ -27,19 +35,28 @@ exports.addComment = async (req, res, next) => {
     await user.save();
     await post.save();
     let foundComment = await db.Comment.findById(comment.id);
-    return res.status(200).json(foundComment);
+    res.status(200).json(foundComment);
   } catch (err) {
-    return next(err);
+    next(err);
   }
 };
 
 //deletes comment and refreshes page
 exports.deleteComment = async (req, res, next) => {
   try {
-    let comment = await db.Comment.findById(req.params.comment_id);
+    let commentExists = await db.Comment.exists({ _id: req.params.comment_id });
+    if (!commentExists) throw new Error("Comment not found");
+
+    let comment = await db.Comment.findOne({
+      _id: req.params.comment_id,
+      user: req.params.id,
+    });
+    if (!comment)
+      throw new Error("You cannot delete a comment you did not create");
+
     await comment.remove();
-    return res.status(200).json({ message: "comment deleted" });
+    res.status(200).json({ message: "Comment deleted" });
   } catch (err) {
-    return next(err);
+    next(err);
   }
 };
