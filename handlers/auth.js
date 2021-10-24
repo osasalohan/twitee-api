@@ -1,6 +1,12 @@
 const db = require("../models");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+const Joi = require("joi");
+
+const authSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().required(),
+});
 
 const transporter = nodemailer.createTransport({
   service: "yahoo",
@@ -13,6 +19,8 @@ const transporter = nodemailer.createTransport({
 //gets name from email address, creates new user and sends welcome mail. Returns a token
 exports.signup = async function (req, res, next) {
   try {
+    await authSchema.validateAsync(req.body);
+
     let username = req.body.email.split("@")[0];
     username = username[0].toUpperCase() + username.slice(1);
     let user = await db.User.create({ ...req.body, name: username });
@@ -42,7 +50,7 @@ exports.signup = async function (req, res, next) {
       },
       process.env.SECRET_KEY
     );
-    return res.status(200).json({
+    res.status(200).json({
       id,
       name,
       posts,
@@ -52,7 +60,7 @@ exports.signup = async function (req, res, next) {
     if (err.code === 11000) {
       err.message = "Sorry, email is taken";
     }
-    return next({
+    next({
       status: 400,
       message: err.message,
     });
@@ -62,6 +70,8 @@ exports.signup = async function (req, res, next) {
 //checks if user exists and password is correct. Returns a token if true else returns error
 exports.signin = async function (req, res, next) {
   try {
+    await authSchema.validateAsync(req.body);
+
     let user = await db.User.findOne({
       email: req.body.email,
     });
@@ -76,20 +86,20 @@ exports.signin = async function (req, res, next) {
         },
         process.env.SECRET_KEY
       );
-      return res.status(200).json({
+      res.status(200).json({
         id,
         name,
         posts,
         token,
       });
     } else {
-      return next({
+      next({
         status: 400,
         message: "Invalid email/password",
       });
     }
   } catch (err) {
-    return next({
+    next({
       status: 400,
       message: "Invalid email/password",
     });
