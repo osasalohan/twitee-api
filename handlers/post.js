@@ -13,9 +13,34 @@ exports.getPosts = async function (req, res, next) {
       .populate("user", "name email")
       .populate({
         path: "comments",
-        populate: { path: "user", model: "User" },
+        populate: { path: "user", select: ["name", "email"] },
+      })
+      .populate({
+        path: "likes",
+        populate: { path: "user", select: ["name", "email"] },
       });
+
     res.status(200).json(posts);
+  } catch (err) {
+    next(err);
+  }
+};
+
+//get a single post
+exports.getPost = async function (req, res, next) {
+  try {
+    let post = await db.Post.findById(req.params.post_id)
+      .populate("user", "name email")
+      .populate({
+        path: "comments",
+        populate: { path: "user", select: ["name", "email"] },
+      })
+      .populate({
+        path: "likes",
+        populate: { path: "user", select: ["name", "email"] },
+      });
+
+    res.status(200).json(post);
   } catch (err) {
     next(err);
   }
