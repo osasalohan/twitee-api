@@ -1,3 +1,11 @@
 # twitee-api
 
-Create environment variables and run node app.js from root directory
+Add .env file with the following variables:
+
+PORT
+DATABASE_URL
+EMAIL
+EMAIL_PASS
+SECRET_KEY
+
+Start the app with "npm start"
